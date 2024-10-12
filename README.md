@@ -1,1 +1,1 @@
-# -IE675b-machine-learning
+# IE675b-machine-learning
