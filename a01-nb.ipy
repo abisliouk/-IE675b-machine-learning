@@ -1,0 +1,451 @@
+# coding: utf-8
+
+# <codecell>
+import math
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import numpy.random
+from mnist import MNIST  # run from Anaconda shell: pip install python-mnist
+import sklearn
+import sklearn.metrics
+from sklearn.model_selection import KFold
+
+# setup plotting 
+from IPython import get_ipython
+import psutil
+inTerminal = not "IPKernelApp" in get_ipython().config
+inJupyterNb = any(filter(lambda x: x.endswith("jupyter-notebook"), psutil.Process().parent().cmdline()))
+get_ipython().run_line_magic("matplotlib", "" if inTerminal else "notebook" if inJupyterNb else "widget")
+def nextplot():
+    if inTerminal:
+        plt.clf()     # this clears the current plot
+    else:
+        plt.figure()  # this creates a new plot 
+
+# <markdowncell>
+# # Load the data
+
+# <codecell>
+mndata = MNIST("data/")
+X, y = mndata.load_training()
+y = np.array(y, dtype="uint8")
+X = np.array([np.array(x) for x in X], dtype="uint8")
+N, D = X.shape
+Xtest, ytest = mndata.load_testing()
+ytest = np.array(ytest, dtype="uint8")
+Xtest = np.array([np.array(x) for x in Xtest], dtype="uint8")
+Ntest = Xtest.shape[0]
+
+# <codecell>
+# Optional: use a smaller sample of the data
+p = np.zeros(0, dtype="int")
+for c in range(10):
+    p = np.append(p, np.random.choice(np.where(y == c)[0], size=100, replace=False))
+X_s = X[p, :]
+y_s = y[p]
+N_s = X_s.shape[0]
+p = np.zeros(0, dtype="int")
+for c in range(10):
+    p = np.append(p, np.random.choice(np.where(ytest == c)[0], size=10, replace=False))
+Xtest_s = Xtest[p, :]
+ytest_s = ytest[p]
+Ntest_s = Xtest_s.shape[0]
+
+
+# <codecell>
+def showdigit(x):
+    "Show one digit as a gray-scale image."
+    plt.imshow(x.reshape(28, 28), norm=mpl.colors.Normalize(0, 255), cmap="gray")
+
+
+# <codecell>
+# Example: show first digit
+nextplot()
+showdigit(X[0,])
+print(y[0])
+
+
+# <codecell>
+def showdigits(X, y, max_digits=15):
+    "Show up to max_digits random digits per class from X with class labels from y."
+    num_cols = min(max_digits, max(np.bincount(y)))
+    for c in range(10):
+        ii = np.where(y == c)[0]
+        if len(ii) > max_digits:
+            ii = np.random.choice(ii, size=max_digits, replace=False)
+        for j in range(num_cols):
+            ax = plt.gcf().add_subplot(
+                10, num_cols, c * num_cols + j + 1, aspect="equal"
+            )
+            ax.get_xaxis().set_visible(False)
+            if j == 0:
+                ax.set_ylabel(c)
+                ax.set_yticks([])
+            else:
+                ax.get_yaxis().set_visible(False)
+            if j < len(ii):
+                ax.imshow(
+                    X[ii[j],].reshape(28, 28),
+                    norm=mpl.colors.Normalize(0, 255),
+                    cmap="gray",
+                )
+            else:
+                ax.axis("off")
+
+
+# <codecell>
+# Example: show 15 random digits per class from training data
+nextplot()
+showdigits(X, y)
+
+# <codecell>
+# Example: show a specific set of digits
+nextplot()
+showdigits(X[0:50,], y[0:50])
+
+# <codecell>
+# A simple example dataset that you can use for testing
+Xex = np.array([1, 0, 0, 1, 1, 1, 2, 0]).reshape(4, 2)
+yex = np.array([0, 1, 2, 0])
+
+
+# <markdowncell>
+# # 1 Training
+
+# <codecell>
+def nb_train(X, y, alpha=1, K=None, C=None):
+    """Train a Naive Bayes model.
+
+    We assume that all features are encoded as integers and have the same domain
+    (set of possible values) from 0:(K-1). Similarly, class labels have domain
+    0:(C-1).
+
+    Parameters
+    ----------
+    X : ndarray of shape (N,D)
+        Design matrix.
+    y : ndarray of shape (N,)
+        Class labels.
+    alpha : int
+        Parameter for symmetric Dirichlet prior (Laplace smoothing) for all
+        fitted distributions.
+    K : int
+        Each feature takes values in [0,K-1]. None means auto-detect.
+    C : int
+        Each class label takes values in [0,C-1]. None means auto-detect.
+
+    Returns
+    -------
+    A dictionary with the following keys and values:
+
+    logpriors : ndarray of shape (C,)
+        Log prior probabilities of each class such that logpriors[c] contains
+        the log prior probability of class c.
+
+    logcls : ndarray of shape(C,D,K)
+        A class-by-feature-by-value array of class-conditional log-likelihoods
+        such that logcls[c,j,v] contains the conditional log-likelihood of value
+        v in feature j given class c.
+    """
+    N, D = X.shape
+    if K is None:
+        K = np.max(X) + 1
+    if C is None:
+        C = np.max(y) + 1
+
+    # Compute class priors and store them in priors
+    priors = np.zeros(C)
+    # YOUR CODE HERE
+
+    # Compute class-conditional densities in a class x feature x value array
+    # and store them in cls.
+    cls = np.zeros((C, D, K))
+    # YOUR CODE HERE
+
+    # Output result
+    return dict(logpriors=np.log(priors), logcls=np.log(cls))
+
+
+# <codecell>
+# Test your code (there should be a warning when you run this)
+model = nb_train(Xex, yex, alpha=1)
+model
+# This should produce:
+# {'logcls': array([[[       -inf, -0.69314718, -0.69314718],
+#          [ 0.        ,        -inf,        -inf]],
+#
+#         [[ 0.        ,        -inf,        -inf],
+#          [       -inf,  0.        ,        -inf]],
+#
+#         [[       -inf,  0.        ,        -inf],
+#          [       -inf,  0.        ,        -inf]]]),
+#  'logpriors': array([-0.69314718, -1.38629436, -1.38629436])}
+
+# <codecell>
+# Test your code (this time no warning)
+model = nb_train(Xex, yex, alpha=2)  # here we use add-one smoothing
+model
+# This should produce:
+# {'logcls': array([[[-1.60943791, -0.91629073, -0.91629073],
+#          [-0.51082562, -1.60943791, -1.60943791]],
+#
+#         [[-0.69314718, -1.38629436, -1.38629436],
+#          [-1.38629436, -0.69314718, -1.38629436]],
+#
+#         [[-1.38629436, -0.69314718, -1.38629436],
+#          [-1.38629436, -0.69314718, -1.38629436]]]),
+#  'logpriors': array([-0.84729786, -1.25276297, -1.25276297])}
+
+
+# <markdowncell>
+# # 2 Prediction
+
+# <codecell>
+def logsumexp(x):
+    """Computes log(sum(exp(x)).
+
+    Uses offset trick to reduce risk of numeric over- or underflow. When x is a
+    1D ndarray, computes logsumexp of its entries. When x is a 2D ndarray,
+    computes logsumexp of each column.
+
+    Keyword arguments:
+    x : a 1D or 2D ndarray
+    """
+    offset = np.max(x, axis=0)
+    return offset + np.log(np.sum(np.exp(x - offset), axis=0))
+
+
+# <codecell>
+def nb_predict(model, Xnew):
+    """Predict using a Naive Bayes model.
+
+    Parameters
+    ----------
+    model : dict
+        A Naive Bayes model trained with nb_train.
+    Xnew : nd_array of shape (Nnew,D)
+        New data to predict.
+
+    Returns
+    -------
+    A dictionary with the following keys and values:
+
+    yhat : nd_array of shape (Nnew,)
+        Predicted label for each new data point.
+
+    logprob : nd_array of shape (Nnew,)
+        Log-probability of the label predicted for each new data point.
+    """
+    logpriors = model["logpriors"]
+    logcls = model["logcls"]
+    Nnew = Xnew.shape[0]
+    C, D, K = logcls.shape
+
+    # Compute the unnormalized log joint probabilities P(Y=c, x_i) of each
+    # test point (row i) and each class (column c); store in logjoint
+    logjoint = np.zeros((Nnew, C))
+    # YOUR CODE HERE
+
+    # Compute predicted labels (in "yhat") and their log probabilities
+    # P(yhat_i | x_i) (in "logprob")
+    # YOUR CODE HERE
+
+    return dict(yhat=yhat, logprob=logprob)
+
+
+# <codecell>
+# Test your code
+model = nb_train(Xex, yex, alpha=2)
+nb_predict(model, Xex)
+# This should produce:
+# {'logprob': array([-0.41925843, -0.55388511, -0.68309684, -0.29804486]),
+#  'yhat': array([0, 1, 2, 0], dtype=int64)}
+
+
+# <markdowncell>
+# # 3 Experiments on MNIST Digits Data
+
+# <codecell>
+# Let's train the model on the digits data and predict
+model_nb2 = nb_train(X, y, alpha=2)
+pred_nb2 = nb_predict(model_nb2, Xtest)
+yhat = pred_nb2["yhat"]
+logprob = pred_nb2["logprob"]
+
+# <codecell>
+# Accuracy
+sklearn.metrics.accuracy_score(ytest, yhat)
+
+# <codecell>
+# show some digits grouped by prediction; can you spot errors?
+nextplot()
+showdigits(Xtest, yhat)
+plt.suptitle("Digits grouped by predicted label")
+
+# <codecell>
+# do the same, but this time show wrong predicitions only
+perror = ytest != yhat
+nextplot()
+showdigits(Xtest[perror, :], yhat[perror])
+plt.suptitle("Errors grouped by predicted label")
+
+# <codecell>
+# do the same, but this time on a sample of wrong preditions to see
+# error proportions
+ierror_s = np.random.choice(np.where(perror)[0], 100, replace=False)
+nextplot()
+showdigits(Xtest[ierror_s, :], yhat[ierror_s])
+plt.suptitle("Errors grouped by predicted label")
+
+# <codecell>
+# now let's look at this in more detail
+print(sklearn.metrics.classification_report(ytest, yhat))
+print(sklearn.metrics.confusion_matrix(ytest, yhat))  # true x predicted
+
+# <codecell>
+# plot the confusion matrix
+nextplot()
+M = sklearn.metrics.confusion_matrix(ytest, yhat)
+plt.imshow(M, origin="upper")
+for ij, v in np.ndenumerate(M):
+    i, j = ij
+    plt.text(j, i, str(v), color="white", ha="center", va="center")
+plt.xlabel("predicted")
+plt.ylabel("true")
+plt.colorbar()
+
+# <codecell>
+# cumulative accuracy for predictions ordered by confidence (labels show predicted
+# confidence)
+order = np.argsort(logprob)[::-1]
+accuracies = np.cumsum(ytest[order] == yhat[order]) / (np.arange(len(yhat)) + 1)
+nextplot()
+plt.plot(accuracies)
+plt.xlabel("Predictions ordered by confidence")
+plt.ylabel("Accuracy")
+for x in np.linspace(0.7, 1, 10, endpoint=False):
+    index = int(x * (accuracies.size - 1))
+    print(np.exp(logprob[order][index]))
+    plt.text(index, accuracies[index], "{:.10f}".format(np.exp(logprob[order][index])))
+
+# <codecell>
+# Accuracy for predictions grouped by confidence (labels show
+# predicted confidence). Make the plot large (or reduce number of bins) to see
+# the labels.
+bins = (np.linspace(0, 1, 50) * len(yhat)).astype(int)
+mean_accuracy = [
+    np.mean(ytest[order][bins[i] : bins[i + 1]] == yhat[order][bins[i] : bins[i + 1]])
+    for i in range(len(bins) - 1)
+]
+nextplot()
+plt.bar(np.arange(len(mean_accuracy)), mean_accuracy)
+plt.xticks(
+    np.arange(len(mean_accuracy)),
+    [
+        "{:.10f}".format(x)
+        for x in np.exp(logprob[order][np.append(bins[1:-1], len(yhat) - 1)])
+    ],
+)
+plt.gcf().autofmt_xdate()
+plt.xlabel("Confidence bin")
+plt.ylabel("Accuracy")
+
+
+# <markdowncell>
+# # 4 Model Selection (optional)
+
+# <codecell>
+# To create folds, you can use:
+K = 5
+Kf = KFold(n_splits=K, shuffle=True)
+for i_train, i_test in Kf.split(X):
+    # code here is executed K times, once per test fold
+    # i_train has the row indexes of X to be used for training
+    # i_test has the row indexes of X to be used for testing
+    print(
+        "Fold has {:d} training points and {:d} test points".format(
+            len(i_train), len(i_test)
+        )
+    )
+
+# <codecell>
+# Use cross-validation to find a good value of alpha. Also plot the obtained
+# accuracy estimate (estimated from CV, i.e., without touching test data) as a
+# function of alpha.
+# YOUR CODE HERE
+
+
+# <markdowncell>
+# # 5 Generating Data
+
+# <codecell>
+def nb_generate(model, ygen):
+    """Given a Naive Bayes model, generate some data.
+
+    Parameters
+    ----------
+    model : dict
+        A Naive Bayes model trained with nb_train.
+    ygen : nd_array of shape (n,)
+        Vector of class labels for which to generate data.
+
+    Returns
+    -------
+    nd_array of shape (n,D)
+
+    Generated data. The i-th row is a sampled data point for the i-th label in
+    ygen.
+    """
+    logcls = model["logcls"]
+    n = len(ygen)
+    C, D, K = logcls.shape
+    Xgen = np.zeros((n, D))
+    for i in range(n):
+        c = ygen[i]
+        # Generate the i-th example of class c, i.e., row Xgen[i,:]. To sample
+        # from a categorical distribution with parameter theta (a probability
+        # vector), you can use np.random.choice(range(K),p=theta).
+        # YOUR CODE HERE
+
+    return Xgen
+
+
+# <codecell>
+# let's generate 15 digits from each class and plot
+ygen = np.repeat(np.arange(10), 15)
+Xgen = nb_generate(model_nb2, ygen)
+
+nextplot()
+showdigits(Xgen, ygen)
+plt.suptitle("Some generated digits for each class")
+
+# <codecell>
+# we can also plot the parameter vectors by choosing the most-likely
+# value for each feature
+ymax = np.arange(10)
+Xmax = np.zeros((10, D))
+for c in range(10):
+    Xmax[c,] = np.apply_along_axis(np.argmax, 1, model_nb2["logcls"][c, :, :])
+
+nextplot()
+showdigits(Xmax, ymax)
+plt.suptitle("Most likely value of each feature per class")
+
+# <codecell>
+# Or the expected value of each feature. Here we leave the categorical domain
+# and treat each feature as a number, i.e., this is NOT how categorical Naive
+# Bayes sees it and we wouldn't be able to do this if the data were really
+# categorical.
+ymean = np.arange(10)
+Xmean = np.zeros((10, D))
+for c in range(10):
+    Xmean[c,] = np.apply_along_axis(
+        np.sum, 1, np.exp(model_nb2["logcls"][c, :, :]) * np.arange(256)
+    )
+
+nextplot()
+showdigits(Xmean, ymean)
+plt.suptitle("Expected value of each feature per class")
+
+
