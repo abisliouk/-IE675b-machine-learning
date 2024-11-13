@@ -43,7 +43,7 @@ In this assignment, we explored the implementation of Naive Bayes for classifica
 ### Structure
 
 - Assignment [task sheet](https://github.com/abisliouk/IE675b-machine-learning/blob/main/Assignment%201/assignment01-task-sheet.pdf) 
-- Assignment solution [notebook .ipynb](https://github.com/abisliouk/IE675b-machine-learning/blob/main/Assignment%201/assignment01-notebook.ipynb)
-- Assignment solution [notebook .pdf with outputs](https://github.com/abisliouk/IE675b-machine-learning/blob/main/Assignment%201/assignment01-notebook.pdf)
+- Assignment solution [notebook .ipynb](https://github.com/abisliouk/IE675b-machine-learning/blob/main/Assignment%201/assignment01-solution.ipynb)
+- Assignment solution [notebook .pdf with outputs](https://github.com/abisliouk/IE675b-machine-learning/blob/main/Assignment%201/assignment01-solution.pdf)
 - Assignment [report](https://github.com/abisliouk/IE675b-machine-learning/blob/main/Assignment%201/assignment01-report.pdf) & Corresponding [LateX project](https://www.overleaf.com/project/670aec2240f8d8bbf5ceff97)
 - Resulting [plots](https://github.com/abisliouk/IE675b-machine-learning/tree/main/Assignment%201/resulting%20plots)
