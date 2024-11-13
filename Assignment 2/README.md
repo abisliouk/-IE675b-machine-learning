@@ -1,4 +1,4 @@
-# Assignment 2: Logistic Regression
+# 2nd Assignment: Logistic Regression
 
 Assignment has been done by pair of students:
 - [Elizaveta Nosova](https://github.com/liza-no)
