@@ -1,6 +1,6 @@
 # Outline
 
-This is a repository for the assignments of the IE675b Machine Learning course at the University of Mannheim.
+This is a repository for the assignments of the [IE675b Machine Learning](https://www.uni-mannheim.de/dws/teaching/course-details/courses-for-master-candidates/ie-675b-machine-learning/) course at the University of Mannheim.
 
 The assignments focus on core machine learning concepts, algorithms, and their implementation in Python, with a strong emphasis on model training, evaluation, and analysis. Each assignment is organized into its own directory, containing code, reports, and visualizations to aid in understanding the various techniques and models applied.
 
