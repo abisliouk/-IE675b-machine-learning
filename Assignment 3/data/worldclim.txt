@@ -1,0 +1,30 @@
+Worldclim data for Data Mining with Matrices
+============================================
+
+Files
+-----
+
+o worldclim.csv 
+    2575 x 48 dense matrix in CSV format (2575 lines, each with 48
+    comma-separated numbers). The columns correspond to bioclimatic variables
+    (see below).
+
+o worldclim-coordinates.csv
+    2572 x 2 dense matrix in the same format as worldclim.csv. The first column
+    is the longitude and the second column the latitude of each row in
+    worldclim.csv.
+
+Data description
+----------------
+
+The data contains climatic variables from 50kmx50km squares accross Europe. The
+variables are the columns of worldclim.csv. The columns 1-12 contain the area's
+minimum temperature from January to December, columns 13-24 the maximum
+temperatures, and columns 25-36 the average temperatures. Columns 37-48 contain
+the average rainfall from January to December.
+
+Data source
+-----------
+
+www.worldclim.org
+
