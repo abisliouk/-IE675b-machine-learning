@@ -12,7 +12,7 @@ In this assignment, we implemented a Naive Bayes classifier with a focus on clas
 - Evaluating the model's accuracy and analyzing performance using a confusion matrix.
 - Conducting experiments with model selection, data generation, and handling missing data.
   
-For more details, see the full [README for Assignment 1](./Assignment%201/README.md).
+For more details, see the full [README for Assignment 1](./Assignment%201.%20Naive%20Bayes/README.md).
 
 ### 2nd Assignment: Logistic Regression
 This assignment involves logistic regression, using both MLE and MAP estimation techniques on the Spambase dataset. The main highlights include:
@@ -20,12 +20,35 @@ This assignment involves logistic regression, using both MLE and MAP estimation 
 - Exploring the effects of regularization on feature importance and model interpretability.
 - Comparing gradient descent and stochastic gradient descent approaches for optimization.
 
-For more details, see the full [README for Assignment 2](./Assignment%202/README.md).
+For more details, see the full [README for Assignment 2](./Assignment%202.%20Logistic%20Regression/README.md).
+
+### 3rd Assignment: Singular Value Decomposition (SVD)
+In this assignment, we explored the application of Singular Value Decomposition (SVD) in dimensionality reduction. Major focus areas include:
+- Implementing the SVD algorithm and validating its functionality.
+- Applying SVD for dimensionality reduction on high-dimensional datasets.
+- Analyzing reconstruction errors and understanding the trade-off between dimensionality and performance.
+
+For more details, see the full [README for Assignment 3](./Assignment%203.%20Singular%20Value%20Decomposition/README.md).
+
+### 4th Assignment: Latent Variable Models (LVM)
+This assignment investigates two major latent variable models: Probabilistic PCA (PPCA) and Gaussian Mixture Models (GMM). Key tasks include:
+- **Probabilistic PCA**:
+  - Generating and visualizing datasets with varying noise levels and analyzing the impact on data distribution.
+  - Implementing MLE for PPCA and exploring the relationship between latent variables and noise.
+  - Discovering the number of latent variables in a secret PPCA dataset using scree plots and validation data.
+- **Gaussian Mixture Models**:
+  - Generating toy datasets and performing K-Means clustering as a baseline for comparison.
+  - Implementing the Expectation-Maximization algorithm for fitting GMMs using MLE.
+  - Evaluating clustering results and comparing with K-Means for different numbers of components.
+
+For more details, see the full [README for Assignment 4](./Assignment%204.%20Latent%20Variable%20Models/README.md).
 
 ## Repository Structure
 
-- **Assignment 1**: [Naive Bayes Classifier](./Assignment%201/)
-- **Assignment 2**: [Logistic Regression](./Assignment%202/)
+- **Assignment 1**: [Naive Bayes Classifier](./Assignment%201.%20Naive%20Bayes/)
+- **Assignment 2**: [Logistic Regression](./Assignment%202.%20Logistic%20Regression/)
+- **Assignment 3**: [Singular Value Decomposition (SVD)](./Assignment%203.%20Singular%20Value%20Decomposition/)
+- **Assignment 4**: [Latent Variable Models (LVM)](./Assignment%204.%20Latent%20Variable%20Models/)
 
 Each assignment folder includes:
 - Task sheet
